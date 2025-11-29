@@ -4,8 +4,8 @@ FROM node:18-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Enable corepack to manage pnpm version
+RUN corepack enable
 
 # Copy root package.json and lockfile
 COPY package.json pnpm-lock.yaml ./
