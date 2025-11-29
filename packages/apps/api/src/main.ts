@@ -21,6 +21,7 @@ async function bootstrap() {
 
   // --- API Configuration ---
   const globalPrefix = configService.get<string>('API_GLOBAL_PREFIX', 'api');
+  const port = configService.get<number>('PORT');
   app.setGlobalPrefix(globalPrefix);
   app.enableVersioning({
     type: VersioningType.URI,
@@ -43,45 +44,18 @@ async function bootstrap() {
   const nodeEnv = configService.get<string>('NODE_ENV', 'development');
   if (nodeEnv !== 'production') {
     const swaggerConfig = new DocumentBuilder()
-      .setTitle('BestAppEver 2026 API')
-      .setDescription('The official API documentation for the best app ever.')
-      .setVersion('1.0.0')
-      .addBearerAuth(
-        {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-          name: 'JWT',
-          description: 'Enter JWT token',
-          in: 'header',
-        },
-        'JWT-auth', // This name must match the name in the @ApiBearerAuth decorator
-      )
+      .setTitle('BestAppEver2026 API')
+      .setDescription('API documentation for BestAppEver2026')
+      .setVersion('1.0')
+      .addBearerAuth()
       .build();
-
     const document = SwaggerModule.createDocument(app, swaggerConfig);
-    const swaggerPath = `${globalPrefix}/docs`;
-    SwaggerModule.setup(swaggerPath, app, document, {
-      swaggerOptions: {
-        persistAuthorization: true,
-      },
-    });
-    logger.log(`Swagger documentation available at /${swaggerPath}`);
+    SwaggerModule.setup(`${globalPrefix}/docs`, app, document);
+    logger.log(`Swagger docs available at http://localhost:${port}/${globalPrefix}/docs`);
   }
 
-  // --- Graceful Shutdown ---
-  app.enableShutdownHooks();
-
   // --- Start Application ---
-  const port = configService.get<number>('PORT', 3000);
   await app.listen(port);
-
-  logger.log(`🚀 Application is running on: ${await app.getUrl()}`);
-  logger.log(`🌱 Current Environment: ${nodeEnv.toUpperCase()}`);
+  logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
 }
-
-bootstrap().catch((error) => {
-  // Using a plain logger here as the NestJS logger might not be initialized.
-  console.error('❌ Error during application bootstrap', error);
-  process.exit(1);
-});
+bootstrap();
