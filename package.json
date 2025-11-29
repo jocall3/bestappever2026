@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "The ultimate application, truly best of its kind, for the year 2026.",
   "private": true,
+  "packageManager": "pnpm@9.1.0",
   "workspaces": [
     "apps/*",
     "packages/*"
