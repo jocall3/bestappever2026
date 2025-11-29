@@ -1,0 +1,8 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "docs"
+  - "examples/*"
+  - "tools/*"
+  - "." # Root package, if applicable
+  - "test-fixtures/*"
