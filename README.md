@@ -2,130 +2,125 @@
 
 ## Overview
 
-BestAppEver2026 is a revolutionary application designed to [Clearly and concisely state the main purpose and target audience of the application. E.g., "to revolutionize personal productivity for busy professionals."]. It leverages cutting-edge technologies to provide a seamless and efficient user experience.
+BestAppEver2026 is a monorepo containing a modern web application stack. It's designed to be a scalable and maintainable foundation for new projects.
+
+This repository includes:
+
+*   **`apps/web`**: A [Next.js](https://nextjs.org/) frontend.
+*   **`apps/api`**: A [NestJS](https://nestjs.com/) backend API.
+*   **`apps/docs`**: A [Docusaurus](https://docusaurus.io/) documentation site.
+*   **`packages/db`**: [Prisma](https://www.prisma.io/) schema, client, and seeding for the database.
+*   **`packages/ui`**: A stub for a shared React component library.
+*   **`packages/auth`**: A stub for a shared authentication library.
+*   **`packages/utils`**: A stub for shared utility functions.
+*   **`packages/eslint-config-custom`**: Shared ESLint configuration.
+*   **`packages/tsconfig`**: Shared TypeScript configurations.
 
 ## Architecture
 
-The application follows a [Specify architectural pattern. E.g., "microservices architecture", "monolithic architecture", "serverless architecture"] and is composed of the following key components:
+This project is a monorepo using [pnpm workspaces](https://pnpm.io/workspaces) and [Turborepo](https://turbo.build/repo).
 
-*   **Frontend:** [Describe the frontend technologies and responsibilities. E.g., "Built with React and TypeScript, responsible for providing the user interface and handling user interactions."]
-*   **Backend:** [Describe the backend technologies and responsibilities. E.g., "Implemented in Python with Flask, manages data storage, API endpoints, and business logic."]
-*   **Database:** [Specify the database used and its role. E.g., "Utilizes PostgreSQL for persistent data storage."]
-*   **Caching:** [Describe the caching mechanism and its purpose. E.g., "Employs Redis for caching frequently accessed data to improve performance."]
-*   **Message Queue:** [Describe the message queue, if any, and its purpose. E.g., "Leverages RabbitMQ for asynchronous task processing."]
+*   **Frontend:** A Next.js application responsible for the user interface.
+*   **Backend:** A NestJS API that handles business logic and data access.
+*   **Database:** PostgreSQL is used for persistent data storage, managed by Prisma.
+*   **Tooling:**
+    *   **pnpm** for package management.
+    *   **Turborepo** for monorepo build orchestration.
+    *   **TypeScript** for static typing across the stack.
+    *   **ESLint** and **Prettier** for code quality and formatting.
+    *   **Docker** for containerizing services like the database.
 
-[Include a simple diagram (ASCII or using an online tool and linking to it) to visually represent the architecture if possible.]
+## Getting Started
 
-## Technologies Used
-
-*   Frontend:
-    *   [List frontend technologies. E.g., React, TypeScript, Redux, HTML, CSS]
-*   Backend:
-    *   [List backend technologies. E.g., Python, Flask, Django, REST APIs]
-*   Database:
-    *   [Specify the database. E.g., PostgreSQL, MongoDB, MySQL]
-*   Infrastructure:
-    *   [Specify the infrastructure. E.g., AWS, Google Cloud, Azure, Docker, Kubernetes]
-*   Other:
-    *   [List any other significant technologies. E.g., Redis, RabbitMQ, Nginx]
-
-## Setup and Deployment
+Follow these instructions to get the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
-Before you begin, ensure you have the following installed:
+*   [Node.js](https://nodejs.org/) (v18 or later recommended)
+*   [pnpm](https://pnpm.io/installation)
+*   [Docker](https://www.docker.com/get-started/) and Docker Compose
 
-*   [List prerequisites. E.g., Python 3.9+, Node.js 16+, Docker, Docker Compose]
+### Installation & Setup
 
-### Installation
-
-1.  Clone the repository:
+1.  **Clone the repository:**
 
     ```bash
-    git clone [repository URL]
+    git clone https://github.com/example/bestappever2026.git
     cd bestappever2026
     ```
 
-2.  Install dependencies:
+2.  **Install dependencies:**
 
-    *   Frontend:
+    Install all dependencies from the root of the monorepo.
 
-        ```bash
-        cd frontend
-        npm install
-        ```
+    ```bash
+    pnpm install
+    ```
 
-    *   Backend:
+3.  **Set up environment variables:**
 
-        ```bash
-        cd backend
-        pip install -r requirements.txt
-        ```
+    Copy the example environment file to create your own local configuration.
 
-### Configuration
+    ```bash
+    cp .env.example .env
+    ```
 
-1.  Create a `.env` file in the root directory based on the `.env.example` file.
-2.  Configure the environment variables according to your specific setup.  Pay close attention to database credentials, API keys, and other sensitive information.
+    Review the `.env` file and update the variables as needed, especially `DATABASE_URL`. The default value should work with the provided Docker Compose setup.
+
+4.  **Start backing services:**
+
+    This will start a PostgreSQL database instance using Docker.
+
+    ```bash
+    docker-compose up -d
+    ```
+
+5.  **Run database migrations:**
+
+    This will apply the database schema to your PostgreSQL instance.
+
+    ```bash
+    pnpm --filter @bestappever2026/db db:migrate:dev
+    ```
+
+6.  **(Optional) Seed the database:**
+
+    To populate the database with some initial data, run the seed script.
+
+    ```bash
+    pnpm --filter @bestappever2026/db db:seed
+    ```
 
 ### Running the Application
 
-1.  Start the application using Docker Compose (recommended for development):
+To run all applications (web, api, docs) in development mode simultaneously:
 
-    ```bash
-    docker-compose up --build
-    ```
+```bash
+pnpm dev
+```
 
-    Alternatively, you can start the frontend and backend separately:
+This command will start:
+*   The Next.js frontend on `http://localhost:3000`
+*   The NestJS backend on `http://localhost:3001`
+*   The Docusaurus docs site on `http://localhost:3002` (or the next available port)
 
-    *   Frontend:
+You can also run a specific application by filtering:
 
-        ```bash
-        cd frontend
-        npm start
-        ```
+```bash
+# Run only the web frontend
+pnpm --filter @bestappever2026/web dev
 
-    *   Backend:
+# Run only the backend API
+pnpm --filter @bestappever2026/api dev
+```
 
-        ```bash
-        cd backend
-        python app.py
-        ```
+## Available Scripts
 
-2.  Access the application in your browser at `http://localhost:[port]` (the port number will depend on your configuration).
+Here are some of the most common scripts available in the root `package.json`:
 
-### Deployment
+*   `pnpm dev`: Starts all applications in development mode.
+*   `pnpm build`: Builds all applications for production.
+*   `pnpm lint`: Lints the entire codebase.
+*   `pnpm test`: Runs tests across the monorepo.
 
-[Provide instructions for deploying the application to a production environment.  Be specific about the target platform (e.g., AWS, Google Cloud, Azure). Include steps for building Docker images, configuring CI/CD pipelines, and managing infrastructure.]
-
-Example Deployment steps (Docker/Kubernetes to AWS):
-
-1.  Build Docker images for the frontend and backend.
-2.  Push the images to a container registry (e.g., Docker Hub, AWS ECR).
-3.  Create a Kubernetes cluster on AWS using EKS.
-4.  Deploy the application to the Kubernetes cluster using Helm or kubectl.
-5.  Configure a load balancer (e.g., AWS ALB) to expose the application to the internet.
-6.  Set up a CI/CD pipeline using Jenkins or GitHub Actions to automate the deployment process.
-
-## Contributing
-
-[Explain how others can contribute to the project. Include guidelines for submitting bug reports, feature requests, and pull requests.  Mention any coding conventions or style guides that should be followed.]
-
-We welcome contributions to BestAppEver2026! To contribute:
-
-1.  Fork the repository.
-2.  Create a new branch for your feature or bug fix.
-3.  Implement your changes, ensuring they adhere to the project's coding style.
-4.  Write tests for your changes.
-5.  Submit a pull request.
-
-## License
-
-[Specify the license under which the project is released. E.g., MIT License, Apache 2.0 License]
-
-This project is licensed under the [License Name] - see the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-[Provide contact information for the project maintainers. E.g., email address, GitHub username]
-
-[Your Name] - [Your Email]
+Individual packages have their own scripts which you can explore in their respective `package.json` files.
