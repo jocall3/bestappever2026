@@ -1,37 +1,47 @@
-ARG NODE_VERSION=18
-ARG ALPINE_VERSION=3.18
-
-# Stage 1: Build the frontend application
-FROM node:${NODE_VERSION}-alpine${ALPINE_VERSION} AS builder
+# Stage 1: Build the Next.js application
+FROM node:18-alpine AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and yarn.lock (or package-lock.json if using npm)
-COPY package.json yarn.lock* package-lock.json* ./
+# Install pnpm
+RUN npm install -g pnpm
 
-# Install dependencies
-RUN yarn install --frozen-lockfile
+# Copy root package.json and lockfile
+COPY package.json pnpm-lock.yaml ./
+
+# Copy workspace config
+COPY pnpm-workspace.yaml ./
+
+# Copy app-specific package.json
+COPY packages/apps/web/package.json ./packages/apps/web/
+
+# Install all dependencies
+RUN pnpm install --filter @bestappever2026/web... --frozen-lockfile
 
 # Copy the rest of the application source code
 COPY . .
 
-# Build the production bundle
-# Assuming a standard React/Vue/Next/etc. setup that uses a build script
-RUN yarn build
+# Build the production bundle for the web app
+RUN pnpm --filter @bestappever2026/web build
 
-# Stage 2: Serve the frontend application using Nginx for production
-FROM nginx:stable-alpine
+# Stage 2: Production image
+FROM node:18-alpine AS runner
 
-# Copy the built assets from the builder stage to Nginx's web root
-COPY --from=builder /app/build /usr/share/nginx/html
+WORKDIR /app
 
-# Copy a custom Nginx configuration file for optimal serving (e.g., handling client-side routing)
-# We assume a file named 'nginx.conf' exists in the root of the project that handles SPA routing fallback.
-COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+# Set the environment to production
+ENV NODE_ENV=production
 
-# Expose port 80 to the container
-EXPOSE 80
+# Copy the standalone output from the builder stage
+COPY --from=builder /app/packages/apps/web/.next/standalone/ .
 
-# Start Nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Copy the public and static assets
+COPY --from=builder /app/packages/apps/web/public ./packages/apps/web/public
+COPY --from=builder /app/packages/apps/web/.next/static ./packages/apps/web/.next/static
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Start the server
+CMD ["node", "packages/apps/web/server.js"]
