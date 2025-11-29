@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+  // Output the Prisma client to `packages/libs/db/client`
+  // This path is relative to the `schema.prisma` file's location (`packages/libs/db/prisma/`)
+  output   = "../client"
+}
+
+// Define the database connection. PostgreSQL is a common choice for production apps.
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Environment variable for database connection string
+}
+
+// User model: Represents an individual user of the application.
+model User {
+  id            String    @id @default(uuid()) // Unique identifier for the user (UUID)
+  email         String    @unique // User's email address, must be unique
+  name          String? // Optional: User's display name
+  passwordHash  String // Hashed password for secure authentication
+  createdAt     DateTime  @default(now()) // Timestamp when the user account was created
+  updatedAt     DateTime  @updatedAt // Timestamp when the user account was last updated
+
+  // Relations: A user can create many posts, comments, sessions, and upload media.
+  posts         Post[]
+  comments      Comment[]
+  sessions      Session[]
+  media         Media[]
+}
+
+// Session model: Manages user authentication sessions (e.g., for refresh tokens).
+model Session {
+  id            String    @id @default(uuid()) // Unique identifier for the session
+  userId        String // ID of the user associated with this session
+  expiresAt     DateTime // Timestamp when the session will expire
+  createdAt     DateTime  @default(now()) // Timestamp when the session was created
+  updatedAt     DateTime  @updatedAt // Timestamp when the session was last updated
+
+  // Relation: A session belongs to one user. If the user is deleted, their sessions are also deleted.
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Post model: Represents a piece of content created by a user (e.g., a blog post, article).
+model Post {
+  id            String    @id @default(uuid()) // Unique identifier for the post
+  title         String // Title of the post
+  content       String // Main content of the post
+  published     Boolean   @default(false) // Status of the post (draft or published)
+  authorId      String // ID of the user who authored the post
+  categoryId    String? // Optional: ID of the category this post belongs to
+  featuredMediaId String? // Optional: ID of a media item to be featured with this post
+
+  createdAt     DateTime  @default(now()) // Timestamp when the post was created
+  updatedAt     DateTime  @updatedAt // Timestamp when the post was last updated
+
+  // Relations:
+  // - A post has one author. If the author is deleted, their posts are also deleted.
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  // - A post can belong to one category. If the category is deleted, the post's category field is set to null.
+  category      Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  // - A post can have one featured media. If the media is deleted, the post's featuredMediaId is set to null.
+  featuredMedia Media?    @relation("FeaturedMediaForPost", fields: [featuredMediaId], references: [id], onDelete: SetNull)
+  // - A post can have many comments.
+  comments      Comment[]
+  // - A post can have many tags (many-to-many relationship).
+  tags          Tag[]
+}
+
+// Category model: Used to organize posts into logical groupings.
+model Category {
+  id            String    @id @default(uuid()) // Unique identifier for the category
+  name          String    @unique // Name of the category, must be unique
+  slug          String    @unique // URL-friendly version of the name, must be unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relation: A category can contain many posts.
+  posts         Post[]
+}
+
+// Tag model: Used to apply keywords to posts for better searchability and organization.
+model Tag {
+  id            String    @id @default(uuid()) // Unique identifier for the tag
+  name          String    @unique // Name of the tag, must be unique
+  slug          String    @unique // URL-friendly version of the name, must be unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relation: A tag can be associated with many posts (many-to-many relationship).
+  posts         Post[]
+}
+
+// Comment model: Represents user-generated comments on posts.
+model Comment {
+  id            String    @id @default(uuid()) // Unique identifier for the comment
+  content       String // The actual content of the comment
+  authorId      String // ID of the user who made the comment
+  postId        String // ID of the post the comment belongs to
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations:
+  // - A comment has one author. If the author is deleted, their comments are also deleted.
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  // - A comment belongs to one post. If the post is deleted, its comments are also deleted.
+  post          Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+// Media model: Stores metadata for uploaded files (images, videos, documents, etc.).
+model Media {
+  id            String    @id @default(uuid()) // Unique identifier for the media file
+  url           String // URL where the media file is hosted (e.g., S3 bucket URL)
+  altText       String? // Optional: Alternative text for accessibility
+  mimeType      String? // Optional: MIME type of the file (e.g., "image/jpeg")
+  fileName      String? // Optional: Original file name
+  size          Int? // Optional: File size in bytes
+
+  uploadedById  String // ID of the user who uploaded the media
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relation: Media is uploaded by one user. If the user is deleted, their uploaded media metadata is also deleted.
+  uploadedBy    User      @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
+
+  // Relation: This media can be featured on one post.
+  featuredForPost Post? @relation("FeaturedMediaForPost")
+}
