@@ -1,26 +1,9 @@
 version: '3.8'
 
-services:
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000" # Expose the application port
-    environment:
-      DATABASE_URL: postgres://bestappever_user:bestappever_password@db:5432/bestappever_db
-      REDIS_URL: redis://redis:6379
-      # Add other environment variables for your application here
-    depends_on:
-      - db
-      - redis
-    networks:
-      - app_network
-    # Mount application code for hot-reloading during development
-    # Uncomment and adjust if your framework supports it
-    # volumes:
-    #   - ./app:/app # Example for a Python/Node.js app where code is in 'app' directory
+# This docker-compose file is intended for setting up backing services for
+# local development, as outlined in the README.md.
 
+services:
   db:
     image: postgres:15-alpine # Using a lightweight PostgreSQL image
     environment:
@@ -31,14 +14,6 @@ services:
       - db_data:/var/lib/postgresql/data # Persist database data
     ports:
       - "5432:5432" # Expose DB port for local access (e.g., DBeaver, pgAdmin)
-    restart: unless-stopped
-    networks:
-      - app_network
-
-  redis:
-    image: redis:7-alpine # Using a lightweight Redis image
-    ports:
-      - "6379:6379" # Expose Redis port for local access
     restart: unless-stopped
     networks:
       - app_network
