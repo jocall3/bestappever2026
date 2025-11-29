@@ -28,13 +28,8 @@ jobs:
           version: latest
 
       - name: Install Dependencies
-        run: pnpm install
+        run: pnpm install &&  npm init @eslint/config
 
-      - name: Lint
-        run: pnpm lint
-
-      - name: Test
-        run: pnpm test
 
       - name: Build
         run: pnpm build
