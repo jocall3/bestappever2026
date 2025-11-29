@@ -1,0 +1,37 @@
+{
+  "name": "bestappever2026",
+  "version": "1.0.0",
+  "description": "The ultimate application, truly best of its kind, for the year 2026.",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm --filter ./apps/* build",
+    "dev": "pnpm --filter ./apps/* dev",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
+    "test": "jest",
+    "clean": "rm -rf node_modules && rm -rf packages/*/node_modules && rm -rf apps/*/node_modules"
+  },
+  "keywords": [
+    "bestappever",
+    "2026",
+    "nextjs",
+    "react",
+    "typescript",
+    "monorepo"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.3",
+    "eslint-plugin-react": "^7.34.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "prettier": "^3.3.0",
+    "typescript": "^5.4.5"
+  }
+}
