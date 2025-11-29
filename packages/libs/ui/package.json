@@ -1,0 +1,42 @@
+{
+  "name": "@bestappever2026/ui",
+  "version": "1.0.0",
+  "description": "Shared UI component library for BestAppEver2026.",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --watch --dts",
+    "clean": "rm -rf dist",
+    "test": "echo 'No tests defined yet'",
+    "lint": "eslint \"src/**/*.ts*\""
+  },
+  "keywords": [
+    "react",
+    "ui",
+    "design system"
+  ],
+  "author": "The BestAppEver2026 Team",
+  "license": "ISC",
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.57.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsconfig": "workspace:*",
+    "tsup": "^8.1.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.3.0"
+  }
+}
